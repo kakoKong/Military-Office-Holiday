@@ -1,0 +1,443 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Name Picker</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 0;
+            background-color: #f8f9fa;
+        }
+
+        .container {
+            display: flex;
+            max-width: 1000px;
+            margin: 20px auto;
+            padding: 15px;
+            background-color: #fff;
+            border-radius: 6px;
+            box-shadow: 0 3px 6px rgba(0, 0, 0, 0.1);
+        }
+
+        .left-column,
+        .right-column {
+            width: 48%;
+            padding: 10px;
+            box-sizing: border-box;
+        }
+
+        .left-column {
+            border-right: 1px solid #ddd;
+        }
+
+        select,
+        button {
+            padding: 8px;
+            font-size: 14px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            outline: none;
+            box-shadow: inset 0 1px 2px rgba(0, 0, 0, 0.1);
+            margin-top: 8px;
+            cursor: pointer;
+        }
+
+        select:focus,
+        button:focus {
+            border-color: #0056b3;
+            box-shadow: 0 0 0 0.2rem rgba(0, 123, 255, 0.25);
+        }
+
+        button {
+            background-color: #0056b3;
+            color: #fff;
+            transition: background-color 0.3s, transform 0.3s;
+        }
+
+        button:hover {
+            background-color: #004494;
+            transform: translateY(-1px);
+        }
+
+        button:active {
+            background-color: #003366;
+            transform: translateY(0);
+        }
+
+        .category {
+            margin-bottom: 15px;
+        }
+
+        .category h2 {
+            font-size: 18px;
+            color: #333;
+            margin-bottom: 5px;
+        }
+
+        .category-list {
+            margin-top: 5px;
+        }
+
+        .category-list ul {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
+            gap: 8px;
+            list-style-type: none;
+            padding: 0;
+            margin: 0;
+        }
+
+        .category-list li {
+            background-color: #f9f9f9;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 6px 10px;
+            font-size: 14px;
+        }
+
+        .category-list button {
+            background-color: #dc3545;
+            color: #fff;
+            border: none;
+            padding: 4px 6px;
+            font-size: 12px;
+            cursor: pointer;
+            border-radius: 4px;
+            transition: background-color 0.3s, transform 0.3s;
+        }
+
+        .category-list button:hover {
+            background-color: #c82333;
+            transform: translateY(-1px);
+        }
+
+        .category-list button:active {
+            background-color: #bd2130;
+            transform: translateY(0);
+        }
+
+        .generate-button {
+            background-color: #1bdb14;
+            color: #fff;
+            transition: background-color 0.3s, transform 0.3s;
+        }
+
+        .generate-button:hover {
+            background-color: #106e04;
+        }
+
+        .clear-button {
+            background-color: #c82333;
+            color: #fff;
+            transition: background-color 0.3s, transform 0.3s;
+        }
+
+        .clear-button:hover {
+            background-color: #bd2130;
+        }
+
+        .result {
+            margin-top: 15px;
+            padding: 10px;
+            font-size: 14px;
+            color: #333;
+            white-space: pre-wrap;
+            border: solid rgb(0, 0, 0) .5px;
+            position: relative;
+        }
+
+        .name-list {
+            margin-bottom: 15px;
+        }
+
+        .name-list h2 {
+            font-size: 18px;
+            margin-bottom: 5px;
+        }
+
+        .name-list ul {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
+            gap: 8px;
+            list-style-type: none;
+            padding: 0;
+            margin: 0;
+        }
+
+        .name-list li {
+            padding: 8px;
+            background-color: #f9f9f9;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            cursor: pointer;
+            text-align: center;
+            font-size: 14px;
+        }
+
+        .name-list li.selected {
+            background-color: #0056b3;
+            color: #fff;
+        }
+
+        .name-list li.disabled {
+            background-color: #e9ecef;
+            cursor: not-allowed;
+        }
+    </style>
+</head>
+
+<body>
+    <div class="container">
+        <!-- Left Column: Manage Names -->
+        <div class="left-column">
+            <h1>ลาล็อคสำนักงาน</h1>
+
+            <!-- Time Selector -->
+            <div>
+                <label for="timeSelect">Select Time:</label>
+                <select id="timeSelect">
+                    <option value="0800">08:00</option>
+                    <option value="1300">13:00</option>
+                    <option value="1800">18:00</option>
+                    <option value="2000">20:00</option>
+                </select>
+            </div>
+
+            <!-- Name List -->
+            <div class="name-list">
+                <h2>Available Names</h2>
+                <ul id="nameList"></ul>
+            </div>
+        </div>
+
+        <!-- Right Column: Generate Report -->
+        <div class="right-column">
+            <!-- Category 1: ลาล็อค -->
+            <div class="category">
+                <h2>ลาล็อค</h2>
+                <button onclick="addNamesToCategory('ลาล็อค')">เพิ่มรายชื่อ</button>
+                <div id="ลาล็อคList" class="category-list"></div>
+            </div>
+
+            <!-- Category 2: ลา เสาร์-อาทิตย์ -->
+            <div class="category">
+                <h2>ลา เสาร์-อาทิตย์</h2>
+                <button onclick="addNamesToCategory('ลาเสาร์-อาทิตย์')">เพิ่มรายชื่อ</button>
+                <div id="ลาเสาร์-อาทิตย์List" class="category-list"></div>
+            </div>
+
+            <div class="category">
+                <h2>ลากิจ</h2>
+                <button onclick="addNamesToCategory('ลากิจ')">เพิ่มรายชื่อ</button>
+                <div id="ลากิจList" class="category-list"></div>
+            </div>
+
+            <!-- Category 3: ช่วยงาน -->
+            <div class="category">
+                <h2>ช่วยงาน</h2>
+                <button onclick="addNamesToCategory('ช่วยงาน')">เพิ่มรายชื่อ</button>
+                <div id="ช่วยงานList" class="category-list"></div>
+            </div>
+
+            <!-- Category 4: ป่วย -->
+            <div class="category">
+                <h2>ป่วย</h2>
+                <button onclick="addNamesToCategory('ป่วย')">เพิ่มรายชื่อ</button>
+                <div id="ป่วยList" class="category-list"></div>
+            </div>
+
+            <!-- Category 5: ขาดแถว -->
+            <div class="category">
+                <h2>ขาดแถว</h2>
+                <button onclick="addNamesToCategory('ขาดแถว')">เพิ่มรายชื่อ</button>
+                <div id="ขาดแถวList" class="category-list"></div>
+            </div>
+
+            <button class="generate-button" onclick="generateReport()">Generate Report</button>
+
+            <div id="result" class="result"></div>
+
+            <!-- The button used to copy the text -->
+            <button onclick="copyToClipboard()">Copy</button>
+            <button class="clear-button" onclick="clearList()">Clear List</button>
+        </div>
+    </div>
+
+    <script>
+        let names = [];
+        let selectedNames = new Set();
+        const categories = {
+            "ลาล็อค": [],
+            "ลาเสาร์-อาทิตย์": [],
+            "ลากิจ": [],
+            "ช่วยงาน": [],
+            "ป่วย": [],
+            "ขาดแถว": []
+        };
+
+        async function fetchData() {
+            try {
+                const response = await fetch('ลาสำนักงานชื่อ.json');
+                const data = await response.json();
+                names = data.names;
+                const saturdaySundayNames = data.saturdaySundayNames || [];
+
+                // Initialize categories and names
+                initialize(saturdaySundayNames);
+            } catch (error) {
+                console.error("Failed to fetch data:", error);
+            }
+        }
+
+        function initialize(saturdaySundayNames) {
+            // Populate the "ลา เสาร์-อาทิตย์" category with initial names
+            categories["ลาเสาร์-อาทิตย์"] = saturdaySundayNames;
+
+            // Populate the name list and category lists
+            populateNameList();
+            updateCategoryList('ลาเสาร์-อาทิตย์');
+        }
+
+        function clearList() {
+            // Clear all categories
+            for (const category in categories) {
+                categories[category] = [];
+                updateCategoryList(category);
+            }
+
+            // Reset the name list
+            // names = [];
+            // selectedNames.clear();
+            populateNameList();
+            document.getElementById('result').textContent = '';
+        }
+
+        function populateNameList() {
+            const nameListElement = document.getElementById('nameList');
+            const disabledNames = new Set(
+                Object.values(categories).flat()
+            );
+
+            nameListElement.innerHTML = names.map(name => {
+                const isDisabled = disabledNames.has(name) ? 'disabled' : '';
+                return `
+                    <li class="${isDisabled}" onclick="${isDisabled ? '' : `toggleSelection('${name}')`}">${name}</li>
+                `;
+            }).join('');
+        }
+
+        function toggleSelection(name) {
+            const nameListElement = document.getElementById('nameList');
+            const listItem = [...nameListElement.children].find(item => item.textContent === name);
+            if (selectedNames.has(name)) {
+                selectedNames.delete(name);
+                listItem.classList.remove('selected');
+            } else {
+                selectedNames.add(name);
+                listItem.classList.add('selected');
+            }
+        }
+
+        function addNamesToCategory(category) {
+            selectedNames.forEach(name => {
+                if (!categories[category].includes(name)) {
+                    categories[category].push(name);
+                }
+            });
+            selectedNames.clear();
+            populateNameList();
+            updateCategoryList(category);
+        }
+
+        function updateCategoryList(category) {
+            const listId = `${category.replace(/\s/g, '')}List`;
+            const categoryListElement = document.getElementById(listId);
+
+            let categoryListHTML = '<ul>';
+            categories[category].forEach(name => {
+                categoryListHTML += `<li>${name}<button onclick="removeNameFromCategory('${category}', '${name}')">X</button></li>`;
+            });
+            categoryListHTML += '</ul>';
+            categoryListElement.innerHTML = categoryListHTML;
+        }
+
+        function removeNameFromCategory(category, name) {
+            const index = categories[category].indexOf(name);
+            if (index > -1) {
+                categories[category].splice(index, 1);
+                updateCategoryList(category);
+                addNameToSelect(name);
+                populateNameList();
+            }
+        }
+
+        function addNameToSelect(name) {
+            if (!names.includes(name)) {
+                names.push(name);
+                populateNameList();
+            }
+        }
+
+        function copyToClipboard() {
+            const resultText = document.getElementById("result").textContent;
+
+            navigator.clipboard.writeText(resultText).then(() => {
+                alert("Copied the text: " + resultText);
+            }).catch(err => {
+                alert("Failed to copy text: " + err);
+            });
+        }
+
+        function generateReport() {
+            const selectedTime = document.getElementById('timeSelect').value;
+
+            // Helper function to get Thai month names
+            const thaiMonths = ["ม.ค.", "ก.พ.", "มี.ค.", "เม.ย.", "พ.ค.", "มิ.ย.", "ก.ค.", "ส.ค.", "ก.ย.", "ต.ค.", "พ.ย.", "ธ.ค."];
+
+            // Function to format date in Thai format
+            function formatDateInThai(date) {
+                const day = date.getDate();
+                const month = thaiMonths[date.getMonth()];
+                const yearBE = date.getFullYear() + 543; // Convert Gregorian year to Buddhist Era year
+                const yearShort = yearBE % 100; // Last two digits of the BE year
+                return `วันที่ ${day} ${month} ${yearShort}`;
+            }
+
+            const currentDate = new Date();
+            const formattedDate = formatDateInThai(currentDate);
+
+            let report = "ขออนุญาตรายงานยอดสำนักงานครับ\n";
+            report += `${formattedDate} เวลา ${selectedTime}\n`;
+            report += `ยอดเดิม ${names.length} นาย\n\n`;
+
+            let totalNames = 0;
+            for (const [category, names] of Object.entries(categories)) {
+                if (names.length > 0) {
+                    report += `${category} ${names.length} นาย\n`;
+                    names.forEach(name => {
+                        report += `${name}\n`;
+                    });
+                    report += '\n';
+                    totalNames += names.length;
+                }
+            }
+
+            report += `รวมจำหน่าย ${totalNames} นาย\n`;
+            report += `คงแถว ${names.length - totalNames} นาย ครับ`;
+
+            document.getElementById('result').textContent = report;
+        }
+
+        fetchData();
+    </script>
+
+</body>
+
+</html>
