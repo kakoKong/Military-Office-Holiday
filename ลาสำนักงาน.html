@@ -4,6 +4,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
     <title>Name Picker</title>
     <style>
         body {
@@ -190,6 +191,16 @@
             background-color: #e9ecef;
             cursor: not-allowed;
         }
+        #searchInput {
+            padding: 10px;
+            font-size: 14px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            outline: none;
+            box-shadow: inset 0 1px 2px rgba(0, 0, 0, 0.1);
+            margin: 10px;
+            width: 50%;
+        }
     </style>
 </head>
 
@@ -198,6 +209,7 @@
         <!-- Left Column: Manage Names -->
         <div class="left-column">
             <h1>ลาล็อคสำนักงาน</h1>
+            <h4>กองบังคับการกองร้อยบริการ</h4>
 
             <!-- Time Selector -->
             <div>
@@ -213,6 +225,10 @@
             <!-- Name List -->
             <div class="name-list">
                 <h2>Available Names</h2>
+                <div>
+                    <label for="searchInput">Search Names:</label>
+                    <input type="text" id="searchInput" placeholder="Search names...">
+                </div>
                 <ul id="nameList"></ul>
             </div>
         </div>
@@ -282,27 +298,57 @@
             "ขาดแถว": []
         };
 
+        document.addEventListener('DOMContentLoaded', function() {
+            fetchData();
+        });
+
+
+        document.getElementById('searchInput').addEventListener('input', function() {
+            const query = this.value.toLowerCase();
+            if (query) {
+                fetchNames(query);
+            } else {
+                populateNameList(); // Show all names if query is empty
+            }
+        });
+
+        function fetchNames(query) {
+            fetch('ลาสำนักงานชื่อ.json') // Replace with your actual search endpoint
+                .then(response => response.json())
+                .then(data => {
+                    // Filter names based on the search query
+                    const filteredNames = data.names.filter(name => name.toLowerCase().includes(query));
+                    populateNameList(filteredNames);
+                })
+                .catch(error => {
+                    console.error("Error fetching names:", error);
+                });
+        }
+
         async function fetchData() {
             try {
                 const response = await fetch('ลาสำนักงานชื่อ.json');
                 const data = await response.json();
                 names = data.names;
                 const saturdaySundayNames = data.saturdaySundayNames || [];
+                const lockHolidayNames = data.lockHolidayNames || [];
 
                 // Initialize categories and names
-                initialize(saturdaySundayNames);
+                initialize(saturdaySundayNames, lockHolidayNames);
             } catch (error) {
                 console.error("Failed to fetch data:", error);
             }
         }
 
-        function initialize(saturdaySundayNames) {
+        function initialize(saturdaySundayNames, lockHolidayNames) {
             // Populate the "ลา เสาร์-อาทิตย์" category with initial names
             categories["ลาเสาร์-อาทิตย์"] = saturdaySundayNames;
+            categories["ลาล็อค"] = lockHolidayNames;
 
             // Populate the name list and category lists
             populateNameList();
             updateCategoryList('ลาเสาร์-อาทิตย์');
+            updateCategoryList('ลาล็อค')
         }
 
         function clearList() {
@@ -310,6 +356,7 @@
             for (const category in categories) {
                 categories[category] = [];
                 updateCategoryList(category);
+                
             }
 
             // Reset the name list
@@ -319,13 +366,11 @@
             document.getElementById('result').textContent = '';
         }
 
-        function populateNameList() {
+        function populateNameList(namesToDisplay = names) {
             const nameListElement = document.getElementById('nameList');
-            const disabledNames = new Set(
-                Object.values(categories).flat()
-            );
+            const disabledNames = new Set(Object.values(categories).flat());
 
-            nameListElement.innerHTML = names.map(name => {
+            nameListElement.innerHTML = namesToDisplay.map(name => {
                 const isDisabled = disabledNames.has(name) ? 'disabled' : '';
                 return `
                     <li class="${isDisabled}" onclick="${isDisabled ? '' : `toggleSelection('${name}')`}">${name}</li>
@@ -388,12 +433,29 @@
         function copyToClipboard() {
             const resultText = document.getElementById("result").textContent;
 
-            navigator.clipboard.writeText(resultText).then(() => {
-                alert("Copied the text: " + resultText);
-            }).catch(err => {
-                alert("Failed to copy text: " + err);
-            });
+            navigator.clipboard.writeText(resultText)
+                .then(() => {
+                    // Display a success message using SweetAlert2
+                    Swal.fire({
+                        icon: 'success',
+                        title: 'Copied!',
+                        text: 'The text has been copied to the clipboard.',
+                        showConfirmButton: false,
+                        timer: 1000
+                    });
+                })
+                .catch(err => {
+                    // Display an error message using SweetAlert2
+                    Swal.fire({
+                        icon: 'error',
+                        title: 'Error!',
+                        text: 'Failed to copy text: ' + err,
+                        showConfirmButton: false,
+                        timer: 1000
+                    });
+                });
         }
+
 
         function generateReport() {
             const selectedTime = document.getElementById('timeSelect').value;
@@ -434,8 +496,6 @@
 
             document.getElementById('result').textContent = report;
         }
-
-        fetchData();
     </script>
 
 </body>
