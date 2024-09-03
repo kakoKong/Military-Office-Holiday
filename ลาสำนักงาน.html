@@ -5,7 +5,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
-    <title>Name Picker</title>
+    <title>รายงานยอดสำนักงาน</title>
     <style>
         body {
             font-family: Arial, sans-serif;
@@ -144,6 +144,37 @@
             background-color: #bd2130;
         }
 
+        .button-alert {
+            background-color: #fff000;
+            border-radius: 4px;
+            color: #000;
+            cursor: pointer;
+            font-weight: bold;
+            padding: 10px 15px;
+            text-align: center;
+            transition: 200ms;
+            width: 25%;
+            box-sizing: border-box;
+            border: 0;
+            font-size: 12px;
+            user-select: none;
+            -webkit-user-select: none;
+            touch-action: manipulation;
+        }
+
+        .button-alert:not(:disabled):hover,
+        .button-alert:not(:disabled):focus {
+            outline: 0;
+            background: #f4e603;
+            box-shadow: 0 0 0 2px rgba(0, 0, 0, .2), 0 3px 8px 0 rgba(0, 0, 0, .15);
+        }
+
+        .button-alert:disabled {
+            filter: saturate(0.2) opacity(0.5);
+            -webkit-filter: saturate(0.2) opacity(0.5);
+            cursor: not-allowed;
+        }
+
         .result {
             margin-top: 15px;
             padding: 10px;
@@ -191,6 +222,7 @@
             background-color: #e9ecef;
             cursor: not-allowed;
         }
+
         #searchInput {
             padding: 10px;
             font-size: 14px;
@@ -208,7 +240,7 @@
     <div class="container">
         <!-- Left Column: Manage Names -->
         <div class="left-column">
-            <h1>ลาล็อคสำนักงาน</h1>
+            <h1>รายงานยอดสำนักงานครับ</h1>
             <h4>กองบังคับการกองร้อยบริการ</h4>
 
             <!-- Time Selector -->
@@ -228,6 +260,7 @@
                 <div>
                     <label for="searchInput">Search Names:</label>
                     <input type="text" id="searchInput" placeholder="Search names...">
+                    <button id="clearSearchButton" onclick="clearSearch()"></button>
                 </div>
                 <ul id="nameList"></ul>
             </div>
@@ -238,41 +271,47 @@
             <!-- Category 1: ลาล็อค -->
             <div class="category">
                 <h2>ลาล็อค</h2>
-                <button onclick="addNamesToCategory('ลาล็อค')">เพิ่มรายชื่อ</button>
+                <button onclick="addNamesToCategory('ลาล็อค')">เพิ่มรายชื่อ</button> <button class="button-alert"
+                    onclick="clearCategory('ลาล็อค')">Clear List</button>
                 <div id="ลาล็อคList" class="category-list"></div>
             </div>
 
             <!-- Category 2: ลา เสาร์-อาทิตย์ -->
             <div class="category">
                 <h2>ลา เสาร์-อาทิตย์</h2>
-                <button onclick="addNamesToCategory('ลาเสาร์-อาทิตย์')">เพิ่มรายชื่อ</button>
+                <button onclick="addNamesToCategory('ลาเสาร์-อาทิตย์')">เพิ่มรายชื่อ</button> <button
+                    class="button-alert" onclick="clearCategory('ลาเสาร์-อาทิตย์')">Clear List</button>
                 <div id="ลาเสาร์-อาทิตย์List" class="category-list"></div>
             </div>
 
             <div class="category">
                 <h2>ลากิจ</h2>
-                <button onclick="addNamesToCategory('ลากิจ')">เพิ่มรายชื่อ</button>
+                <button onclick="addNamesToCategory('ลากิจ')">เพิ่มรายชื่อ</button> <button class="button-alert"
+                    onclick="clearCategory('ลากิจ')">Clear List</button>
                 <div id="ลากิจList" class="category-list"></div>
             </div>
 
             <!-- Category 3: ช่วยงาน -->
             <div class="category">
                 <h2>ช่วยงาน</h2>
-                <button onclick="addNamesToCategory('ช่วยงาน')">เพิ่มรายชื่อ</button>
+                <button onclick="addNamesToCategory('ช่วยงาน')">เพิ่มรายชื่อ</button> <button class="button-alert"
+                    onclick="clearCategory('ช่วยงาน')">Clear List</button>
                 <div id="ช่วยงานList" class="category-list"></div>
             </div>
 
             <!-- Category 4: ป่วย -->
             <div class="category">
                 <h2>ป่วย</h2>
-                <button onclick="addNamesToCategory('ป่วย')">เพิ่มรายชื่อ</button>
+                <button onclick="addNamesToCategory('ป่วย')">เพิ่มรายชื่อ</button> <button class="button-alert"
+                    onclick="clearCategory('ป่วย')">Clear List</button>
                 <div id="ป่วยList" class="category-list"></div>
             </div>
 
             <!-- Category 5: ขาดแถว -->
             <div class="category">
                 <h2>ขาดแถว</h2>
-                <button onclick="addNamesToCategory('ขาดแถว')">เพิ่มรายชื่อ</button>
+                <button onclick="addNamesToCategory('ขาดแถว')">เพิ่มรายชื่อ</button> <button class="button-alert"
+                    onclick="clearCategory('ขาดแถว')">Clear List</button>
                 <div id="ขาดแถวList" class="category-list"></div>
             </div>
 
@@ -282,13 +321,29 @@
 
             <!-- The button used to copy the text -->
             <button onclick="copyToClipboard()">Copy</button>
-            <button class="clear-button" onclick="clearList()">Clear List</button>
+            <button class="clear-button" onclick="clearList()">Clear All</button>
         </div>
     </div>
 
     <script>
-        let names = [];
+        // เปลี่ยนชื่อตรงนี้นะจ๊ะ
+
+        // รายชื่อคนลา เสาร์อาทิตย์
+        const saturdaySundayNames = [
+        ]
+
+        // รายชื่อคนลา ล็อค
+        const lockHolidayNames = [
+
+        ]
+
+        // รายชื่อสำนักงานทั้งหมด
+        const names = [
+
+        ]
+
         let selectedNames = new Set();
+
         const categories = {
             "ลาล็อค": [],
             "ลาเสาร์-อาทิตย์": [],
@@ -297,48 +352,6 @@
             "ป่วย": [],
             "ขาดแถว": []
         };
-
-        document.addEventListener('DOMContentLoaded', function() {
-            fetchData();
-        });
-
-
-        document.getElementById('searchInput').addEventListener('input', function() {
-            const query = this.value.toLowerCase();
-            if (query) {
-                fetchNames(query);
-            } else {
-                populateNameList(); // Show all names if query is empty
-            }
-        });
-
-        function fetchNames(query) {
-            fetch('ลาสำนักงานชื่อ.json') // Replace with your actual search endpoint
-                .then(response => response.json())
-                .then(data => {
-                    // Filter names based on the search query
-                    const filteredNames = data.names.filter(name => name.toLowerCase().includes(query));
-                    populateNameList(filteredNames);
-                })
-                .catch(error => {
-                    console.error("Error fetching names:", error);
-                });
-        }
-
-        async function fetchData() {
-            try {
-                const response = await fetch('ลาสำนักงานชื่อ.json');
-                const data = await response.json();
-                names = data.names;
-                const saturdaySundayNames = data.saturdaySundayNames || [];
-                const lockHolidayNames = data.lockHolidayNames || [];
-
-                // Initialize categories and names
-                initialize(saturdaySundayNames, lockHolidayNames);
-            } catch (error) {
-                console.error("Failed to fetch data:", error);
-            }
-        }
 
         function initialize(saturdaySundayNames, lockHolidayNames) {
             // Populate the "ลา เสาร์-อาทิตย์" category with initial names
@@ -351,32 +364,42 @@
             updateCategoryList('ลาล็อค')
         }
 
-        function clearList() {
-            // Clear all categories
-            for (const category in categories) {
-                categories[category] = [];
-                updateCategoryList(category);
-                
-            }
-
-            // Reset the name list
-            // names = [];
-            // selectedNames.clear();
+        function clearSearch() {
+            // Clear the search input field
+            document.getElementById('searchInput').value = '';
+            // Restore the full list of names
             populateNameList();
-            document.getElementById('result').textContent = '';
         }
 
+        // Function to populate the name list with search results
         function populateNameList(namesToDisplay = names) {
             const nameListElement = document.getElementById('nameList');
             const disabledNames = new Set(Object.values(categories).flat());
 
             nameListElement.innerHTML = namesToDisplay.map(name => {
                 const isDisabled = disabledNames.has(name) ? 'disabled' : '';
+                const isSelected = selectedNames.has(name) ? 'selected' : '';
                 return `
-                    <li class="${isDisabled}" onclick="${isDisabled ? '' : `toggleSelection('${name}')`}">${name}</li>
+                    <li class="${isDisabled} ${isSelected}" onclick="${isDisabled ? '' : `toggleSelection('${name}')`}">${name}</li>
                 `;
             }).join('');
         }
+
+        function filterNames(query) {
+            const filteredNames = names.filter(name =>
+                name.toLowerCase().includes(query.toLowerCase())
+            );
+            populateNameList(filteredNames);
+        }
+
+        document.getElementById('searchInput').addEventListener('input', function () {
+            const query = this.value;
+            if (query) {
+                filterNames(query);
+            } else {
+                populateNameList();
+            }
+        });
 
         function toggleSelection(name) {
             const nameListElement = document.getElementById('nameList');
@@ -413,6 +436,10 @@
             categoryListElement.innerHTML = categoryListHTML;
         }
 
+        function clearCategory(category) {
+            categories[category] = [];
+            updateCategoryList(category);
+        }
         function removeNameFromCategory(category, name) {
             const index = categories[category].indexOf(name);
             if (index > -1) {
@@ -435,7 +462,6 @@
 
             navigator.clipboard.writeText(resultText)
                 .then(() => {
-                    // Display a success message using SweetAlert2
                     Swal.fire({
                         icon: 'success',
                         title: 'Copied!',
@@ -445,7 +471,6 @@
                     });
                 })
                 .catch(err => {
-                    // Display an error message using SweetAlert2
                     Swal.fire({
                         icon: 'error',
                         title: 'Error!',
@@ -455,20 +480,49 @@
                     });
                 });
         }
+        
+        document.addEventListener('DOMContentLoaded', function () {
+            function getClosestTime(currentHour) {
+                const times = {
+                    "0800": 8,
+                    "1300": 13,
+                    "1800": 18,
+                    "2000": 20
+                };
 
+                let closestTime = "0800";
+                let smallestDiff = Infinity;
 
+                for (const [time, hour] of Object.entries(times)) {
+                    const diff = Math.abs(currentHour - hour);
+                    if (diff < smallestDiff) {
+                        smallestDiff = diff;
+                        closestTime = time;
+                    }
+                }
+                return closestTime;
+            }
+
+            function setDefaultTime() {
+                const now = new Date();
+                const currentHour = now.getHours();
+                const closestTime = getClosestTime(currentHour);
+                const timeSelect = document.getElementById('timeSelect');
+                timeSelect.value = closestTime;
+            }
+
+            setDefaultTime();
+        });
         function generateReport() {
             const selectedTime = document.getElementById('timeSelect').value;
 
-            // Helper function to get Thai month names
             const thaiMonths = ["ม.ค.", "ก.พ.", "มี.ค.", "เม.ย.", "พ.ค.", "มิ.ย.", "ก.ค.", "ส.ค.", "ก.ย.", "ต.ค.", "พ.ย.", "ธ.ค."];
 
-            // Function to format date in Thai format
             function formatDateInThai(date) {
                 const day = date.getDate();
                 const month = thaiMonths[date.getMonth()];
-                const yearBE = date.getFullYear() + 543; // Convert Gregorian year to Buddhist Era year
-                const yearShort = yearBE % 100; // Last two digits of the BE year
+                const yearBE = date.getFullYear() + 543;
+                const yearShort = yearBE % 100;
                 return `วันที่ ${day} ${month} ${yearShort}`;
             }
 
@@ -496,6 +550,8 @@
 
             document.getElementById('result').textContent = report;
         }
+        populateNameList();
+        initialize(saturdaySundayNames, lockHolidayNames)
     </script>
 
 </body>
